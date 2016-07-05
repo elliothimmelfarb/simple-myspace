@@ -17,4 +17,12 @@ router.post('/register', (req, res) => {
   })
 })
 
+router.post('/login', (req, res) => {
+  User.authenticate(req.body, (err, user) => {
+    if(err) return res.status(400).send(err);
+    let token = user.generateToken;
+    res.cookie('authtoken', token).send(user);
+  })
+})
+
 module.exports = router;

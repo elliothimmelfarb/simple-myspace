@@ -16,6 +16,27 @@ let userSchema = new mongoose.Schema({
   }
 });
 
+userSchema.methods.generateToken = function() {
+  let payload = {
+    _id: this.id,
+    username: this.username
+  };
+
+  let token = jwt.sign(payload, JWT_SECRET, {expiresIn: '1 day'});
+  return token;
+};
+
+userSchema.statics.authenticate = function(userObj, cb) {
+  User.findOne({username: userObj.username}, (err, user) => {
+    if(err || !user) return cb(err || {error: 'Invalid username or password'});
+    bcrypt.compare(userObj.password, user.password, (err, isGood) => {
+      if(err || !isGood) return cb(err || {error: 'Invalid username or password'});
+      user.password = null;
+      cb(null, user);
+    });
+  });
+};
+
 userSchema.statics.register = function(userObj, cb) {
   User.findOne({username: userObj.username}, (err, user) => {
     if(err || user) return cb(err || {error: 'Username already taken'});

@@ -25,6 +25,18 @@ let userSchema = new mongoose.Schema({
   }
 });
 
+userSchema.statics.authMiddleware = function(req, res, next) {
+  let token = req.cookies.authtoken;
+  jwt.verify(token, JWT_SECRET, (err, payload) => {
+    if(err) return res.status(401).send(err);
+    User.findById(payload._id, (err, user) => {
+      if(err || !user) return res.status(401).send(err || {error: 'User not found.'})
+      req.user = user;
+      next();  
+    })
+  }).select('-password');
+};
+
 userSchema.statics.postMessage = function(userId, msgObj, cb) {
   User.findById(userId, (err, user) => {
     if(err || !user) return cb(err || {error: 'User not found.'});

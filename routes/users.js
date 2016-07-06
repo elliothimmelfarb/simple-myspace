@@ -11,6 +11,10 @@ router.route('/')
     }).select('-password') // TODO: add select for -password
   });
 
+router.get('/profile', User.authMiddleware, (req, res) => {
+  res.send(req.user);
+})
+
 router.post('/register', (req, res) => {
   User.register(req.body, err => {
     res.status(err ? 400 : 200).send(err);

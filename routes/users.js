@@ -20,8 +20,21 @@ router.post('/register', (req, res) => {
 router.post('/login', (req, res) => {
   User.authenticate(req.body, (err, user) => {
     if(err) return res.status(400).send(err);
-    let token = user.generateToken;
+    let token = user.generateToken();
     res.cookie('authtoken', token).send(user);
+  });
+});
+
+router.post('/:id/postMsg', (req, res) => {
+  User.postMessage(req.params.id, req.body, err => {
+    res.status(err ? 400 : 200).send(err);
+  });
+});
+
+router.put('/:id', (req, res) => {
+  User.findByIdAndUpdate(req.params.id, req.body, {new: true}, (err, user) => {
+    user.password = null;
+    res.status(err ? 400 : 200).send(err || user);
   });
 });
 

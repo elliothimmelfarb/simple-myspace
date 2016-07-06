@@ -4,17 +4,40 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcryptjs');
+
+let messageSchema = new mongoose.Schema({
+  createdAt: {type: Date, default: Date.now},
+  poster: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+  content: {type: String}
+});
 
 let userSchema = new mongoose.Schema({
   username: { type: String, required: true },
   password: { type: String, required: true },
+  createdAt: {type: Date, default: Date.now},
   profile: {
+    messages: [messageSchema],
     name: {type: String},
     age: {type: Number},
-    favColor: {type: String}
+    favColor: {type: String},
+    avatar: {type: String}
   }
 });
+
+userSchema.statics.postMessage = function(userId, msgObj, cb) {
+  User.findById(userId, (err, user) => {
+    if(err || !user) return cb(err || {error: 'User not found.'});
+    let message = {
+      content: msgObj.content,
+      poster: msgObj.poster
+    }
+    user.profile.messages.push(message);
+    user.save(err => {
+      cb(err);
+    });
+  });
+}
 
 userSchema.methods.generateToken = function() {
   let payload = {

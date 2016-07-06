@@ -21,4 +21,11 @@ head
 body(ng-app='myApp', ng-controller='mainCtrl')
   .container-fluid
     h1 #{title}
+    
+    button.btn.btn-default(ui-sref='home') Home
+    button.btn.btn-default(ui-sref='myProfile', ng-show='currentUser') My Profile
+    button.btn.btn-default(ui-sref='Login', ng-hide='currentUser') Login
+    button.btn.btn-default(ui-sref='Register', ng-hide='currentUser') Register
+    button.btn.btn-default(ng-click='logout()', ng-show='currentUser') Logout
+    span(ng-show='currentUser') Hello, {{currentUser.username}}
     ui-view

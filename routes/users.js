@@ -8,12 +8,18 @@ router.route('/')
   .get((req, res) => {
     User.find({}, (err, users) => {
       res.status(err ? 400 : 200).send(err || users);
-    }).select('-password') // TODO: add select for -password
+    }).select('-password');
   });
 
-router.get('/profile', User.authMiddleware, (req, res) => {
-  res.send(req.user);
-})
+  router.get('/profile', User.authMiddleware, (req, res) => {
+    res.send(req.user);
+  });
+
+router.get('/:id', (req, res) => {
+  User.findUserById(req.params.id, (err, user) => {
+    res.status(err ? 400 : 200).send(err || user);
+  });
+});
 
 router.post('/register', (req, res) => {
   User.register(req.body, err => {

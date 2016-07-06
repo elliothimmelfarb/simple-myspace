@@ -21,21 +21,43 @@ let userSchema = new mongoose.Schema({
     name: {type: String},
     age: {type: Number},
     favColor: {type: String},
-    avatar: {type: String}
+    avatar: {type: String, default: 'https://image.freepik.com/free-icon/male-user-shadow_318-34042.png'}
   }
 });
+
+let populateMessages = {
+  path: 'profile.messages',
+  populate: {
+    path: 'poster',
+    model: 'User',
+    select: '-password',
+  }
+}
 
 userSchema.statics.authMiddleware = function(req, res, next) {
   let token = req.cookies.authtoken;
   jwt.verify(token, JWT_SECRET, (err, payload) => {
     if(err) return res.status(401).send(err);
-    User.findById(payload._id, (err, user) => {
-      if(err || !user) return res.status(401).send(err || {error: 'User not found.'})
-      req.user = user;
-      next();  
-    })
-  }).select('-password');
+    User.findById(payload._id)
+      .populate(populateMessages)
+      .exec((err, user) => {
+        if(err || !user) return res.status(401).send(err || {error: 'User not found.'})
+        req.user = user;
+        req.user.password = null;
+        next();
+      })
+  })
 };
+
+userSchema.statics.findUserById = (id, cb) => {
+  User.findById(id)
+  .populate(populateMessages)
+  .exec((err, user) => {
+    if(err || !user) return cb(err || {error: 'User not found.'})
+    //user.password = null;
+    cb(null, user);
+  })
+}
 
 userSchema.statics.postMessage = function(userId, msgObj, cb) {
   User.findById(userId, (err, user) => {

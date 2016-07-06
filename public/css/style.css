@@ -1,0 +1,12 @@
+.profileViewImage {
+  max-height: 200px;
+}
+
+.msgImage {
+  min-height: 120px;
+  min-width: 120px;
+}
+
+.wallpost {
+  min-width: 549px;
+}

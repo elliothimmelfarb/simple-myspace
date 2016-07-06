@@ -1,0 +1,31 @@
+<h1>{{user.username}}'s profile</h1>
+
+<img class='profileViewImage' src="{{user.profile.avatar}}">
+
+<span>
+  <div ng-show='user.profile.name'>Name: {{user.profile.name}}</div>
+  <div ng-show='user.profile.age'>Age: {{user.profile.age}}</div>
+  <div ng-show='user.profile.favColor'>Favorite Color: {{user.profile.favColor}}</div>
+</span>
+
+<h4>{{user.username}}'s Wall</h4>
+<form ng-if='currentUser' ng-submit='postMessage(message)' class="form-inline">
+    <input type="text" ng-model='message.content' class="form-control" placeholder="Write on {{user.username}}'s wall" required>
+    <button class='btn btn-info'>Write</button>
+</form>
+<div class='wall'>
+  <div ng-repeat='message in user.profile.messages.slice().reverse() track by $index' class="wallpost jumbotron">
+    <div class="row">
+      <div class="col-xs-3">
+        <img class='msgImage img-responsive' ng-src="{{message.poster.profile.avatar}}" alt="">
+        <div>
+          {{message.poster.username}}
+        </div>
+        {{message.createdAt | date:'medium'}}
+      </div>
+      <div class="col-xs-9">
+        {{message.content}}
+      </div>
+    </div>
+  </div>
+</div>
